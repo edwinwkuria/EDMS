@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@(Html.DevExtreme().DataGrid<EDMS.Models.Division>()
+    .DataSource(ds => ds.WebApi()
+        .RouteName("DivisionsApi")
+        .LoadAction("Get")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("divisionId")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.divisionId);
+
+        columns.AddFor(m => m.divisionName);
+
+        columns.AddFor(m => m.departmentId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("DivisionsApi").LoadAction("DepartmentsLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+    })
+    .Editing(e => e
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+    )
+)
