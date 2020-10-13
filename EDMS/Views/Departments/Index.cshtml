@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Departments</h2>
+
+@(Html.DevExtreme().DataGrid<EDMS.Models.Department>()
+    .DataSource(ds => ds.WebApi()
+        .RouteName("DepartmentsApi")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("departmentId")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.departmentName);
+    })
+    .Editing(e => e.Mode(GridEditMode.Popup)
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+        .Popup(p => p
+                .Title("Department")
+                .ShowTitle(true)
+                .Width(700)
+                .Height(400)
+
+            )
+    )
+)

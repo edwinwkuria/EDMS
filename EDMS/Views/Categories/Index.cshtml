@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Categories</h2>
+
+@(Html.DevExtreme().DataGrid<EDMS.Models.Category>()
+    .DataSource(ds => ds.WebApi()
+        .RouteName("CategoriesApi")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("categoryId")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.categoryName);
+
+        columns.AddFor(m => m.divisionId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("CategoriesApi").LoadAction("DivisionsLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+
+        columns.AddFor(m => m.departmentId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("CategoriesApi").LoadAction("DepartmentsLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+    })
+    .Editing(e => e.Mode(GridEditMode.Popup)
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+        .Popup(p => p
+                .Title("Category")
+                .ShowTitle(true)
+                .Width(700)
+                .Height(400)
+
+            )
+
+    )
+)

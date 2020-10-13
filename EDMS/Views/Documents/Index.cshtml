@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model EDMS.Models.Document
+
+@(Html.DevExtreme().Popup()
+        .ID("uploadfile-popup")
+        .Width(500)
+        .Height(500)
+        .ShowTitle(true)
+        .Title("Add New File")
+        .Visible(false)
+        .DragEnabled(false)
+        .CloseOnOutsideClick(true)
+    )
+
+
+<div class="container row">
+    <div class="col-sm-10">
+    </div>
+    <div class="col-sm-2">
+        @(Html.DevExtreme().Button()
+                    .ElementAttr("class", "button-info")
+                    .Text("Upload New")
+                    .OnClick(@<text>
+                        function showInfo(data) {
+                            var popup = $("#uploadfile-popup").dxPopup("instance");
+                            popup.option("contentTemplate", $("#popup-template-"));
+                            popup.show();
+                        }
+                    </text>)
+                )
+    </div>
+</div>
+
+
+@(Html.DevExtreme().DataGrid<EDMS.Models.Document>()
+    .DataSource(ds => ds.WebApi()
+        .RouteName("DocumentsApi")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("documentId")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.documentName);
+
+        columns.AddFor(m => m.documentPath);
+
+        columns.AddFor(m => m.documentType);
+
+        columns.AddFor(m => m.documentSize);
+
+        columns.AddFor(m => m.departmentId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("DocumentsApi").LoadAction("DepartmentsLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+
+        columns.AddFor(m => m.divisionid).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("DocumentsApi").LoadAction("DivisionsLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+
+        columns.AddFor(m => m.categoryId).Lookup(lookup => lookup
+            .DataSource(ds => ds.WebApi().RouteName("DocumentsApi").LoadAction("CategoriesLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+
+        columns.AddFor(m => m.documentCreate);
+
+        columns.AddFor(m => m.documentModify);
+    })
+    .Editing(e => e.Mode(GridEditMode.Popup)
+        .AllowAdding(false)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+                .Popup(p => p
+                .Title("Document")
+                .ShowTitle(true)
+                .Width(700)
+                .Height(400)
+
+            )
+    )
+)
+
+@using (Html.DevExtreme().NamedTemplate("popup-template-"))
+{
+    <span>
+        @using (Html.BeginForm("Create", "FileUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @(Html.DevExtreme().FileUploader()
+                .Name("file")
+                .Multiple(false)
+                .UploadMode(FileUploadMode.Instantly)
+            )
+
+            @(Html.DevExtreme().Button()
+                .Text("Upload Files")
+                .UseSubmitBehavior(true)
+        )
+        }
+    </span>
+}
+
